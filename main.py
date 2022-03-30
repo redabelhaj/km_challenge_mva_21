@@ -36,7 +36,6 @@ class Main:
     Main class for running our method
     """
     def __init__(self, **params):
-        np.random.seed(42) ## for reproducibility
         self.imsize = 32
         for n, v in params.items():
             setattr(self, n, v)
