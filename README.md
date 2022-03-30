@@ -8,7 +8,8 @@
 - To run the method and produce a submission file :
 `python main.py --config config.yaml`
 
-Accepted arguments : 
+
+### Accepted arguments for the YAML file: 
 - `name` (`str`) : name of the run (used for the name of the submission file)
 - `train_size` (`int`) : number of samples for training
 - `test_size` (`int`) : number of samples for training (only in validation mode)
