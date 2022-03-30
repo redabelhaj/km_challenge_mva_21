@@ -25,3 +25,4 @@ Accepted arguments :
 - `C` (`float`) : SVM regularization parameter
 - `device` (`str`) 'cuda' or 'cpu' 
 - `disable_tqdm` (`bool`) : disable tqdm progress bars
+- `batch_size` (`bool`) : batch size for computing thre feature vectors
