@@ -10,16 +10,16 @@ import logging
 from svm import MultiClassSVM
 
 def load_data():
-    Xtr = np.array(pd.read_csv("Xtr.csv", header=None, sep=",", usecols=range(3072)))
-    Ytr = np.array(pd.read_csv("Ytr.csv", sep=",", usecols=[1])).squeeze()
+    Xtr = np.array(pd.read_csv("data/Xtr.csv", header=None, sep=",", usecols=range(3072)))
+    Ytr = np.array(pd.read_csv("data/Ytr.csv", sep=",", usecols=[1])).squeeze()
     Xtr = Xtr.reshape(5000, 3, -1).reshape(-1, 3, 32, 32)
     return Xtr, Ytr
 
 
 def load_train_test_data():
-    Xtr = np.array(pd.read_csv("Xtr.csv", header=None, sep=",", usecols=range(3072)))
-    Xte = np.array(pd.read_csv("Xte.csv", header=None, sep=",", usecols=range(3072)))
-    Ytr = np.array(pd.read_csv("Ytr.csv", sep=",", usecols=[1])).squeeze()
+    Xtr = np.array(pd.read_csv("data/Xtr.csv", header=None, sep=",", usecols=range(3072)))
+    Xte = np.array(pd.read_csv("data/Xte.csv", header=None, sep=",", usecols=range(3072)))
+    Ytr = np.array(pd.read_csv("data/Ytr.csv", sep=",", usecols=[1])).squeeze()
     Xtr = Xtr.reshape(5000, 3, -1).reshape(-1, 3, 32, 32)
     Xte = Xte.reshape(2000, 3, -1).reshape(-1, 3, 32, 32)
     return Xtr, Ytr, Xte
@@ -247,7 +247,7 @@ class Main:
         preds = self.train_and_predict(X_train, Y_train, X_test)
         preds = pd.DataFrame({"Prediction": preds})
         preds.index += 1
-        preds.to_csv("submisison.csv", index_label="Id")
+        preds.to_csv(f"{self.name}_submisison.csv", index_label="Id")
 
     def main(self):
         """
