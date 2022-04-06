@@ -1,7 +1,11 @@
 import pandas as pd
 import numpy as np
 import torch  ## only for linear algebra operations
-from torchvision.transforms import Compose, RandomCrop, RandomHorizontalFlip  ## only for data augmentations
+from torchvision.transforms import (
+    Compose,
+    RandomCrop,
+    RandomHorizontalFlip,
+)  ## only for data augmentations
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 from sklearn.svm import SVC  ## for debugging
@@ -9,16 +13,23 @@ import yaml
 import logging
 from svm import MultiClassSVM
 
+
 def load_data():
-    Xtr = np.array(pd.read_csv("data/Xtr.csv", header=None, sep=",", usecols=range(3072)))
+    Xtr = np.array(
+        pd.read_csv("data/Xtr.csv", header=None, sep=",", usecols=range(3072))
+    )
     Ytr = np.array(pd.read_csv("data/Ytr.csv", sep=",", usecols=[1])).squeeze()
     Xtr = Xtr.reshape(5000, 3, -1).reshape(-1, 3, 32, 32)
     return Xtr, Ytr
 
 
 def load_train_test_data():
-    Xtr = np.array(pd.read_csv("data/Xtr.csv", header=None, sep=",", usecols=range(3072)))
-    Xte = np.array(pd.read_csv("data/Xte.csv", header=None, sep=",", usecols=range(3072)))
+    Xtr = np.array(
+        pd.read_csv("data/Xtr.csv", header=None, sep=",", usecols=range(3072))
+    )
+    Xte = np.array(
+        pd.read_csv("data/Xte.csv", header=None, sep=",", usecols=range(3072))
+    )
     Ytr = np.array(pd.read_csv("data/Ytr.csv", sep=",", usecols=[1])).squeeze()
     Xtr = Xtr.reshape(5000, 3, -1).reshape(-1, 3, 32, 32)
     Xte = Xte.reshape(2000, 3, -1).reshape(-1, 3, 32, 32)
@@ -35,6 +46,7 @@ class Main:
     """
     Main class for running our method
     """
+
     def __init__(self, **params):
         self.imsize = 32
         for n, v in params.items():
@@ -73,7 +85,7 @@ class Main:
         """
         Creates the dictionary of patches
         patches are sampled randomly from X
-        The distribution is slightly biased towards the center of the image 
+        The distribution is slightly biased towards the center of the image
         """
         n = len(X)
         npc = n // 10
@@ -105,13 +117,13 @@ class Main:
 
         if self.augment_dict:
             # adds the opposite patches as well
-            self.n_patches *= 2 
+            self.n_patches *= 2
             return np.vstack([res, -res])
         return res
 
     def compute_whitening_params(self):
         """
-        Computes the whitening matrix W from the dict of patches 
+        Computes the whitening matrix W from the dict of patches
         If self.use_whitening is False, returns the Identity
         """
         if not self.use_whitening:
@@ -180,16 +192,16 @@ class Main:
             ).sum(axis=1)
         u, _ = torch.topk(res, self.n_nearest, dim=0, sorted=True, largest=False)
         if self.hard_assignment:
-            res = torch.where(res <= u[-1, :], 1.0, 0.0) ## hard K-nn assignment
+            res = torch.where(res <= u[-1, :], 1.0, 0.0)  ## hard K-nn assignment
         else:
-            res = torch.sigmoid(u[-1, :] - res) ## soft sigmoid assignment
+            res = torch.sigmoid(u[-1, :] - res)  ## soft sigmoid assignment
 
         res = res.permute(1, 0, 2, 3)
-        ## Average pooling 
+        ## Average pooling
         res = torch.nn.functional.avg_pool2d(
             res, kernel_size=(self.mean_pooling_size, self.mean_pooling_size)
         )
-        return self.bn(res) ## batch norm
+        return self.bn(res)  ## batch norm
 
     def get_feature_vectors(self, X):
         """
@@ -225,14 +237,16 @@ class Main:
         logging.info("Compute validation features")
         features_val = self.get_feature_vectors(X_test)
         logging.info("Compute kernel matrices")
-        km_train = torch.einsum("njkl,mjkl->nm", features_train, features_train).cpu().numpy()
+        km_train = (
+            torch.einsum("njkl,mjkl->nm", features_train, features_train).cpu().numpy()
+        )
         km = torch.einsum("njkl,mjkl->nm", features_val, features_train).cpu().numpy()
 
         if self.use_sklearn:
             svc = SVC(kernel="precomputed")
             svc.fit(km_train, y_train)
             return svc.predict(km)
-        
+
         svm = MultiClassSVM(km_train, n_classes=10, C=self.C)
         svm.fit_global(y_train)
         return svm.predict_global(km)
@@ -267,10 +281,14 @@ class Main:
         return preds, acc
 
 
-
-if __name__=="__main__":
-    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+if __name__ == "__main__":
+    logging.basicConfig(
+        format="%(asctime)s %(message)s",
+        datefmt="%m/%d/%Y %I:%M:%S %p",
+        level=logging.INFO,
+    )
     import argparse
+
     parser = argparse.ArgumentParser(description="Run a validation/submission script")
     parser.add_argument("--config", type=str, help="Path to config yaml file")
     parser.add_argument("--validate", action="store_true")
@@ -282,7 +300,7 @@ if __name__=="__main__":
     if args.validate:
         M = Main(**config)
         M.main()
-    
+
     else:
         M = Main(**config)
         M.run_final()
