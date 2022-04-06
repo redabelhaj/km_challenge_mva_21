@@ -1,5 +1,8 @@
 # MVA 2021-22 Data Challenge
 
+Code of the experiments for the Kernel Methods 2021-2022 course of MVA. The method aims to reproduce the main results of [this paper](https://arxiv.org/abs/2101.07528). 
+
+
 ## Usage
 
 - Create a YAML config file 
